@@ -318,7 +318,7 @@
     <value>The first, and most basic thing a board should do is blink.</value>
   </data>
   <data name="TutorialBlinkyBody2Text" xml:space="preserve">
-    <value>As mentioned in the "Get Started" section, all the source code for this open source and available on www. windowsondevices.com (look for the IoTCoreDefaultApp).</value>
+    <value>As mentioned in the "Get Started" section, all of the source code for this is open source and is available on www.windowsondevices.com (look for the IoTCoreDefaultApp).</value>
   </data>
   <data name="TutorialBlinkyBody3Text" xml:space="preserve">
     <value>No set up is required. Just press start.</value>
@@ -714,5 +714,59 @@
   <data name="NoDeviceName" xml:space="preserve">
     <value>&lt;no device name&gt;</value>
     <comment>This is shown when we fail to retrieve a valid device name (very strange case)</comment>
+  </data>
+  <data name="CommandLineText" xml:space="preserve">
+    <value>Command line</value>
+    <comment>Title for command line page</comment>
+  </data>
+  <data name="CommandLinePlaceholderText" xml:space="preserve">
+    <value>{0}&gt; Enter command line</value>
+    <comment>Placeholder for command line input text box</comment>
+  </data>
+  <data name="ClearPageText" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="CdNotSupported" xml:space="preserve">
+    <value>Change Directory not currently supported. Please use full paths in your commands.</value>
+  </data>
+  <data name="CmdNotEnabled" xml:space="preserve">
+    <value>Your device is not allowed to run the command line processor.
+To enable it, run the following command as "Administrator" on your device:
+
+    reg ADD "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\EmbeddedMode\ProcessLauncher" /v AllowedExecutableFilesList /t REG_MULTI_SZ /d "c:\windows\system32\cmd.exe\0"
+
+Alternatively, click the button below to enter the administrator's username/password and attempt to execute the command.
+
+    </value>
+    <comment>New lines need to be preserved</comment>
+  </data>
+  <data name="ExecAsDefaultAccount" xml:space="preserve">
+    <value>Executing commands as DefaultAccount
+    </value>
+  </data>
+  <data name="CloseText" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="EnableCmdText" xml:space="preserve">
+    <value>Enable Command Line Processor</value>
+  </data>
+  <data name="UsernameText" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="PasswordText" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="CmdTextEnabledSuccess" xml:space="preserve">
+    <value>Successfully enabled Command Line Processor (cmd.exe) on your device.</value>
+  </data>
+  <data name="CmdTextEnabledFailure" xml:space="preserve">
+    <value>Failed to enable Command Line Processor (cmd.exe) on your device. Status = {0}</value>
+  </data>
+  <data name="DisconnectButtonContent" xml:space="preserve">
+    <value>Disconnect</value>
+    <comment>This disconnects the connected network</comment>
+  </data>
+  <data name="VirtualNetworkAdapter" xml:space="preserve">
+    <value>Virtual Network Adapter</value>
   </data>
 </root>

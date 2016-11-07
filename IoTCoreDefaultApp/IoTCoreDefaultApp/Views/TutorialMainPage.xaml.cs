@@ -1,25 +1,14 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-
+using IoTCoreDefaultApp.Utils;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
-using IoTCoreDefaultApp.Utils;
 
 namespace IoTCoreDefaultApp
 {
@@ -44,15 +33,18 @@ namespace IoTCoreDefaultApp
 
             this.DataContext = LanguageManager.GetInstance();
 
-            this.Loaded += (sender, e) =>
+            this.Loaded += async (sender, e) =>
             {
-                UpdateBoardInfo();
-                UpdateDateTime();
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                {
+                    UpdateBoardInfo();
+                    UpdateDateTime();
 
-                timer = new DispatcherTimer();
-                timer.Tick += timer_Tick;
-                timer.Interval = TimeSpan.FromSeconds(30);
-                timer.Start();
+                    timer = new DispatcherTimer();
+                    timer.Tick += timer_Tick;
+                    timer.Interval = TimeSpan.FromSeconds(30);
+                    timer.Start();
+                });
             };
             this.Unloaded += (sender, e) =>
             {
@@ -122,6 +114,11 @@ namespace IoTCoreDefaultApp
                     ShutdownHelper(ShutdownKind.Restart);
                     break;
             }
+        }
+
+        private void CommandLineButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            NavigationUtils.NavigateToScreen(typeof(CommandLinePage));
         }
 
         private void SettingsButton_Clicked(object sender, RoutedEventArgs e)

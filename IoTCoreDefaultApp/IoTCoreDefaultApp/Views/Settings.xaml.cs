@@ -3,16 +3,14 @@
 
 using System;
 using System.Collections.ObjectModel;
-using Windows.Devices.WiFi;
-using Windows.Devices.Enumeration;
-using Windows.Foundation;
-using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
+using Windows.Devices.Enumeration;
+using Windows.Devices.WiFi;
+using Windows.Foundation;
 using Windows.Security.Credentials;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
@@ -63,10 +61,13 @@ namespace IoTCoreDefaultApp
 
             this.DataContext = LanguageManager.GetInstance();
 
-            this.Loaded += (sender, e) =>
+            this.Loaded += async (sender, e) =>
             {
-                SetupLanguages();
-                screensaverToggleSwitch.IsOn = Screensaver.IsScreensaverEnabled;
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                {
+                    SetupLanguages();
+                    screensaverToggleSwitch.IsOn = Screensaver.IsScreensaverEnabled;
+                });
             };
         }
 
@@ -109,7 +110,7 @@ namespace IoTCoreDefaultApp
                 {
                     if (deviceWatcher == null  ||  (DeviceWatcherStatus.Stopped == deviceWatcher.Status) )
                     {
-                        StartWatcher();
+                        StartWatchingAndDisplayConfirmationMessage();
                     }
                 }
             }
@@ -154,11 +155,6 @@ namespace IoTCoreDefaultApp
                     DisplayMessagePanel(confirmationMessage, MessageType.InformationalMessage);
                 });
             }
-        }
-
-        private void StartWatcherButton_Click(object sender, RoutedEventArgs e)
-        {
-            StartWatchingAndDisplayConfirmationMessage();
         }
 
         private void StartWatchingAndDisplayConfirmationMessage()
@@ -234,19 +230,26 @@ namespace IoTCoreDefaultApp
         private async void SetupWifi()
         {
             if (await networkPresenter.WifiIsAvailable())
-            {
+            {    
                 var networks = await networkPresenter.GetAvailableNetworks();
-
+             
                 if (networks.Count > 0)
                 {
-                    WifiListView.ItemsSource = networks;
-                    var connectedNetwork = networkPresenter.GetCurrentWifiNetwork();
 
+                    var connectedNetwork = networkPresenter.GetCurrentWifiNetwork();
                     if (connectedNetwork != null)
                     {
+                        networks.Remove(connectedNetwork);
+                        networks.Insert(0, connectedNetwork);
+                        WifiListView.ItemsSource = networks;
                         SwitchToItemState(connectedNetwork, WifiConnectedState, true);
                     }
-
+                    else
+                    {
+                        WifiListView.ItemsSource = networks;
+                    }
+                   
+               
                     NoWifiFoundText.Visibility = Visibility.Collapsed;
                     WifiListView.Visibility = Visibility.Visible;
 
@@ -257,12 +260,11 @@ namespace IoTCoreDefaultApp
             NoWifiFoundText.Visibility = Visibility.Visible;
             WifiListView.Visibility = Visibility.Collapsed;
         }
-
+       
         private void WifiListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var listView = sender as ListView;
-
-            foreach (var item in e.RemovedItems)
+             foreach (var item in e.RemovedItems)
             {
                 SwitchToItemState(item, WifiInitialState, true);
             }
@@ -270,8 +272,17 @@ namespace IoTCoreDefaultApp
             foreach (var item in e.AddedItems)
             {
                 Automatic = true;
-                SwitchToItemState(item, WifiConnectState, true);
-            }
+                var connectedNetwork = networkPresenter.GetCurrentWifiNetwork();
+
+                if (connectedNetwork == item)
+                {
+                    SwitchToItemState(connectedNetwork, WifiConnectedMoreOptions, true);
+                }
+                else
+                {
+                    SwitchToItemState(item, WifiConnectState, true);
+                }
+           }
         }
 
         private void ConnectButton_Clicked(object sender, RoutedEventArgs e)
@@ -306,6 +317,24 @@ namespace IoTCoreDefaultApp
                 var item = SwitchToItemState(network, nextState, false);
                 item.IsSelected = false; 
             });
+            SetupWifi();
+        }
+
+        private void DisconnectButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var network = button.DataContext as WiFiAvailableNetwork;
+            var connectedNetwork = networkPresenter.GetCurrentWifiNetwork();
+
+            if (network == connectedNetwork)
+            {
+                networkPresenter.DisconnectNetwork(network);
+            }
+            else
+            {
+                SwitchToItemState(network, WifiInitialState, true);
+            }
+            SetupWifi();
         }
 
         private void NextButton_Clicked(object sender, RoutedEventArgs e)
@@ -347,9 +376,6 @@ namespace IoTCoreDefaultApp
             {
                 item.ContentTemplate = template;
             }
-
-
-
             return item;
         }
 

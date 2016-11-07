@@ -50,17 +50,20 @@ namespace IoTCoreDefaultApp
 
             this.DataContext = LanguageManager.GetInstance();
 
-            this.Loaded += (sender, e) => 
+            this.Loaded += async (sender, e) => 
             {
-                UpdateBoardInfo();
-                UpdateNetworkInfo();
-                UpdateDateTime();
-                UpdateConnectedDevices();
+                await MainPageDispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                {
+                    UpdateBoardInfo();
+                    UpdateNetworkInfo();
+                    UpdateDateTime();
+                    UpdateConnectedDevices();
 
-                timer = new DispatcherTimer();
-                timer.Tick += timer_Tick;
-                timer.Interval = TimeSpan.FromSeconds(10);
-                timer.Start();
+                    timer = new DispatcherTimer();
+                    timer.Tick += timer_Tick;
+                    timer.Interval = TimeSpan.FromSeconds(10);
+                    timer.Start();
+                });
             };
             this.Unloaded += (sender, e) =>
             {
@@ -142,6 +145,11 @@ namespace IoTCoreDefaultApp
             ShutdownDropdown.IsOpen = true;
         }
 
+        private void CommandLineButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            NavigationUtils.NavigateToScreen(typeof(CommandLinePage));
+        }
+
         private void SettingsButton_Clicked(object sender, RoutedEventArgs e)
         {
             NavigationUtils.NavigateToScreen(typeof(Settings));
@@ -154,7 +162,10 @@ namespace IoTCoreDefaultApp
 
         private void ShutdownHelper(ShutdownKind kind)
         {
-            ShutdownManager.BeginShutdown(kind, TimeSpan.FromSeconds(0.5));
+            new System.Threading.Tasks.Task(() =>
+            {
+                ShutdownManager.BeginShutdown(kind, TimeSpan.FromSeconds(0));
+            }).Start();
         }
 
         private void ShutdownListView_ItemClick(object sender, ItemClickEventArgs e)
